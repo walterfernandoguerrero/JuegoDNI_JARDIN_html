@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Juego de Identidad (DNI) Escolar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html {
+            background: linear-gradient(rgb(207, 207, 207), rgb(254, 254, 254));
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            height: 5vh;
+            background-color: rgb(237, 121, 13);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            color: aliceblue;
+            padding: 10px;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cam-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        video, canvas {
+            border: solid 1px rgb(237, 121, 13);
+            border-radius: 10px;
+            width: 300px;
+            height: 225px;
+        }
+
+        button {
+            border-radius: 5px;
+            padding: 10px 15px;
+            border: none;
+            background-color: rgb(237, 121, 13);
+            color: aliceblue;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #d16e0c;
+        }
+        
+        .form-container {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-container h2 {
+            margin-bottom: 5px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex-grow: 1;
+        }
+
+        .form-container input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .dni-card {
+            border: 2px solid #0056b3;
+            border-radius: 15px;
+            padding: 15px;
+            width: 350px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 10px;
+            position: relative;
+        }
+
+        .dni-card-content {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dni-card-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #0056b3;
+        }
+
+        .dni-card-info {
+            flex-grow: 1;
+        }
+
+        .dni-card-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .dni-card-info .label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .action-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .action-links a {
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .action-links a:hover {
+            text-decoration: underline;
+        }
+
+        .galeria-container {
+            margin-top: 20px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        @media print {
+            .action-links, .main-container {
+                display: none;
+            }
+            .dni-card {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Juego de Identidad (DNI) Escolar
+    </header>
+
+    <main class="main-container">
+        <div class="cam-container">
+            <video class="video"></video>
+            <button class="take-photo-btn">TOMAR FOTO</button>
+            <canvas class="canvas" width="640" height="480" style="display: none;"></canvas>
+            <img class="photo" src="" alt="Foto del alumno" style="display: none;" />
+        </div>
+
+        <div class="form-container">
+            <h2>Datos del Alumno</h2>
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" placeholder="Ingrese apellido" />
+
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" placeholder="Ingrese nombre" />
+
+            <label for="fecha-nacimiento">Fecha de Nacimiento:</label>
+            <input type="date" id="fecha-nacimiento" />
+
+            <label for="superpoder">Apodo / Superpoder:</label>
+            <input type="text" id="superpoder" placeholder="Ej: El Mago de las Matemáticas" />
+
+            <label for="hobbie">Hobbie Favorito:</label>
+            <input type="text" id="hobbie" placeholder="Ej: Dibujar, Leer, Jugar fútbol" />
+            
+            <label for="nro-tramite">Número de Trámite:</label>
+            <div class="input-group">
+                <input type="text" id="nro-tramite" placeholder="Nro de Trámite" />
+                <button id="generar-tramite-btn">Generar</button>
+            </div>
+
+            <label for="dni">Número de DNI:</label>
+            <div class="input-group">
+                <input type="text" id="dni" placeholder="Nro de DNI" />
+                <button id="generar-dni-btn">Generar</button>
+            </div>
+
+            <button class="register-btn">REGISTRAR ALUMNO</button>
+        </div>
+    </main>
+
+    <div id="galeria-container" class="galeria-container">
+    </div>
+
+    <script>
+        const video = document.querySelector(".video");
+        const canvas = document.querySelector(".canvas");
+        const photo = document.querySelector(".photo");
+        const takePhotoBtn = document.querySelector(".take-photo-btn");
+        const registerBtn = document.querySelector(".register-btn");
+        const generarTramiteBtn = document.getElementById("generar-tramite-btn");
+        const generarDniBtn = document.getElementById("generar-dni-btn");
+        
+        const nroTramiteInput = document.getElementById("nro-tramite");
+        const dniInput = document.getElementById("dni");
+
+        const getVideo = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
+                video.srcObject = stream;
+                video.play();
+            } catch (error) {
+                console.error("Error al acceder a la cámara:", error);
+                alert("No se pudo acceder a la cámara. Por favor, asegúrate de que esté habilitada.");
+            }
+        };
+
+        const handleTakePhoto = () => {
+            const context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, 640, 480);
+            const dataURL = canvas.toDataURL("image/png");
+            photo.setAttribute("src", dataURL);
+            photo.style.display = "block";
+            video.style.display = "none";
+            takePhotoBtn.textContent = "CAMBIAR FOTO";
+        };
+
+        const handleRegister = () => {
+            const fotoDataURL = photo.src;
+            if (!fotoDataURL) {
+                alert("Por favor, toma una foto antes de registrar.");
+                return;
+            }
+
+            const alumno = {
+                id: Date.now(),
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                fechaNacimiento: document.getElementById('fecha-nacimiento').value,
+                superpoder: document.getElementById('superpoder').value,
+                hobbie: document.getElementById('hobbie').value,
+                nroTramite: nroTramiteInput.value,
+                dni: dniInput.value,
+                foto: fotoDataURL
+            };
+
+            if (Object.values(alumno).some(val => val === '' || val === undefined || val === null)) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            let alumnos = JSON.parse(localStorage.getItem('alumnos')) || [];
+            alumnos.push(alumno);
+            localStorage.setItem('alumnos', JSON.stringify(alumnos));
+
+            alert('¡Alumno registrado con éxito!');
+            resetForm();
+            cargarGaleria();
+        };
+
+        const resetForm = () => {
+            document.getElementById('apellido').value = '';
+            document.getElementById('nombre').value = '';
+            document.getElementById('fecha-nacimiento').value = '';
+            document.getElementById('superpoder').value = '';
+            document.getElementById('hobbie').value = '';
+            nroTramiteInput.value = '';
+            dniInput.value = '';
+
+            photo.style.display = "none";
+            video.style.display = "block";
+            takePhotoBtn.textContent = "TOMAR FOTO";
+            photo.removeAttribute("src");
+        };
+
+        const generarNumeroAleatorio = (longitud) => {
+            return Math.floor(Math.random() * (10 ** longitud)).toString().padStart(longitud, '0');
+        };
+
+        const eliminarRegistro = (id) => {
+            let alumnos = JSON.parse(localStorage.getItem('alumnos')) || [];
+            const nuevosAlumnos = alumnos.filter(alumno => alumno.id !== id);
+            localStorage.setItem('alumnos', JSON.stringify(nuevosAlumnos));
+            cargarGaleria();
+        };
+
+        const imprimirDni = (id) => {
+            const dniCard = document.getElementById(`dni-card-${id}`);
+            if (!dniCard) {
+                console.error("No se encontró el elemento a imprimir.");
+                alert("Error: No se encontró el registro para imprimir. Por favor, asegúrate de que tiene un ID válido.");
+                return;
+            }
+            
+            // Oculta todo lo que no es la galería
+            document.querySelector('.main-container').style.display = 'none';
+            document.querySelector('header').style.display = 'none';
+            
+            // Muestra solo la tarjeta que se va a imprimir
+            dniCard.style.display = 'block';
+            
+            window.print();
+            
+            // Vuelve a mostrar todo el contenido después de la impresión
+            document.querySelector('.main-container').style.display = 'flex';
+            document.querySelector('header').style.display = 'flex';
+            
+            // Oculta la tarjeta nuevamente si es necesario
+            dniCard.style.display = 'flex'; 
+        };
+
+        const cargarGaleria = () => {
+            const galeria = document.getElementById('galeria-container');
+            galeria.innerHTML = '';
+            const alumnos = JSON.parse(localStorage.getItem('alumnos')) || [];
+
+            alumnos.forEach((alumno) => {
+                const card = document.createElement('div');
+                card.classList.add('dni-card');
+                card.id = `dni-card-${alumno.id}`;
+                card.innerHTML = `
+                    <div class="dni-card-content">
+                        <img src="${alumno.foto}" alt="Foto de ${alumno.nombre}" class="dni-card-photo" />
+                        <div class="dni-card-info">
+                            <p><span class="label">Apellido:</span> ${alumno.apellido}</p>
+                            <p><span class="label">Nombre:</span> ${alumno.nombre}</p>
+                            <p><span class="label">DNI:</span> ${alumno.dni || 'Sin DNI'}</p>
+                            <p><span class="label">Nro. Trámite:</span> ${alumno.nroTramite || 'Sin Nro'}</p>
+                            <p><span class="label">Superpoder:</span> ${alumno.superpoder || 'Sin Apodo'}</p>
+                            <p><span class="label">Hobbie:</span> ${alumno.hobbie || 'Sin Hobbie'}</p>
+                        </div>
+                    </div>
+                    <div class="action-links">
+                        <a href="#" class="imprimir-link" data-id="${alumno.id}">IMPRIMIR DNI</a>
+                        <a href="#" class="eliminar-link" data-id="${alumno.id}">ELIMINAR</a>
+                    </div>
+                `;
+                galeria.appendChild(card);
+            });
+
+            document.querySelectorAll('.imprimir-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = e.target.dataset.id;
+                    imprimirDni(id);
+                });
+            });
+
+            document.querySelectorAll('.eliminar-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = parseInt(e.target.dataset.id);
+                    if (confirm('¿Estás seguro de que quieres eliminar este registro?')) {
+                        eliminarRegistro(id);
+                    }
+                });
+            });
+        };
+
+        // Event Listeners
+        takePhotoBtn.addEventListener("click", handleTakePhoto);
+        registerBtn.addEventListener("click", handleRegister);
+        generarTramiteBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            nroTramiteInput.value = generarNumeroAleatorio(11);
+        });
+        generarDniBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            dniInput.value = generarNumeroAleatorio(8);
+        });
+
+        // Inicio
+        getVideo();
+        cargarGaleria();
+    </script>
+</body>
+</html>
